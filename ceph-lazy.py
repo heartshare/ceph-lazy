@@ -1,10 +1,36 @@
 #!/usr/bin/env python
+import os
+import commands
+
+VERSION="1.1.2"
 
 def hello():
 	print "hello"
 
+#
+# check requirements for this script
+#
+
+def check_requirements():
+	(checkceph, output) = commands.getstatusoutput('ceph --version >/dev/null 2>&1')
+	(checkrados, output) = commands.getstatusoutput('rados --version >/dev/null 2>&1')
+	(checkrbd, output) = commands.getstatusoutput('rbd --version >/dev/null 2>&1')
+	(checkosdmaptool, output) = commands.getstatusoutput('osdmaptool --version >/dev/null 2>&1')
+        checkstatus = checkceph or checkrados or checkrbd or checkosdmaptool
+	if checkstatus != 0:
+		print 'some command not found!'
+		print commands.getoutput('ceph --version 1 > /dev/null')
+		print commands.getoutput('rados --version 1 > /dev/null')
+		print commands.getoutput('rbd --version 1 > /dev/null')
+		print commands.getoutput('osdmaptool --version 1 > /dev/null')
+
+
+#
+#print help info
+#
+
 def help():
-	print "Usage : ceph-lazy [-d | -h] [command] [parameters]
+	print """Usage : ceph-lazy [-d | -h] [command] [parameters]
 Ceph complex quering tool - Version $VERSION
 OPTIONS
 ========
@@ -47,10 +73,11 @@ COMMANDS
     Objects
     --------
     object-get-host   pool_name object_id           Find object storage hosts (first is primary)
-"
+"""
 
 
 
 
 if __name__ == '__main__':
 	help()
+	check_requirements()
