@@ -1,11 +1,36 @@
 #!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 import os
+import sys
 import commands
+import json
+
 
 VERSION="1.1.2"
 
-def hello():
-	print "hello"
+
+def main():
+	
+	if sys.argv[1] == '-h' or sys.argv[1] == 'help':
+		help()
+	if sys.argv[1] == 'host-get-osd':
+		list_osd_from_host()
+
+
+#
+# list osd from host
+#
+def list_osd_from_host():
+	if len(sys.argv) <= 2:
+		print "more args"
+	list_osd_tree = commands.getoutput('ceph osd tree --format json-pretty')
+	json_str = json.loads(list_osd_tree)
+	for i in  json_str["nodes"]:
+			if i['name'] == sys.argv[2]:
+		       		 i['children'].sort()
+				 for a in i['children']:
+					print a
+
 
 #
 # check requirements for this script
@@ -38,14 +63,17 @@ OPTIONS
     -h          Print help
 COMMANDS
 =========
-    Host
-    -----
+    --------
+   |  Host  |
+    --------
     host-get-osd      hostname                      List all OSD IDs attached to a particular node.
     host-get-nodes                                  List all storage nodes.
     host-osd-usage    hostname                      Show total OSD space usage of a particular node (-d for details).
     host-all-usage                                  Show total OSD space usage of each nodes (-d for details)
     Placement groups
-    -----------------
+    --------
+   |   PG   |
+    --------
     pg-get-host       pgid                          Find PG storage hosts (first is primary)
     pg-most-write                                   Find most written PG (nb operations)
     pg-less-write                                   Find less written PG (nb operations)
@@ -56,16 +84,18 @@ COMMANDS
     pg-most-read-kb                                 Find most read PG (data read)
     pg-less-read-kb                                 Find less read PG (data read)
     pg-empty                                        Find empty PGs (no stored object)
-    RBD
-    ----
+    --------
+   |   RBD  |
+    --------
     rbd-prefix        pool_name image_name          Return RBD image prefix
     rbd-count         pool_name image_name          Count number of objects in a RBD image
     rbd-host          pool_name image_name          Find RBD primary storage hosts
     rbd-osd           pool_name image_name          Find RBD primary OSDs
     rbd-size          pool_name image_name          Print RBD image real size
     rbd-all-size      pool_name                     Print all RBD images size (Top first)
-    OSD
-    ----
+    --------
+   |   OSD  |
+    --------
     osd-most-used                                   Show the most used OSD (capacity)
     osd-less-used                                   Show the less used OSD (capacity)
     osd-get-ppg       osd_id                        Show all primaries PGS hosted on a OSD
@@ -76,8 +106,6 @@ COMMANDS
 """
 
 
-
-
 if __name__ == '__main__':
-	help()
 	check_requirements()
+	main()
