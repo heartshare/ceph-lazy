@@ -5,9 +5,7 @@ import sys
 import commands
 import json
 
-
 VERSION="1.1.2"
-
 
 def main():
 	
@@ -15,7 +13,6 @@ def main():
 		help()
 	if sys.argv[1] == 'host-get-osd':
 		list_osd_from_host()
-
 
 #
 # list osd from host
@@ -25,12 +22,11 @@ def list_osd_from_host():
 		print "more args"
 	list_osd_tree = commands.getoutput('ceph osd tree --format json-pretty')
 	json_str = json.loads(list_osd_tree)
-	for i in  json_str["nodes"]:
-			if i['name'] == sys.argv[2]:
-		       		 i['children'].sort()
-				 for a in i['children']:
-					print a
-
+	for item in  json_str["nodes"]:
+		if item['name'] == sys.argv[2] and item['type'] == 'host':
+			item['children'].sort()
+			for osd in item['children']:
+				print osd
 
 #
 # check requirements for this script
