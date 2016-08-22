@@ -13,16 +13,6 @@ Ceph-lazy does that for you so you don't loose time on piped commands and quickl
 Ceph-lazy DOES NOT perform any write operation on your cluster, ONLY READS.
 
 
-
-Ceph的CLI是非常完整的，它可以做几乎一切。但也有需要做一些复杂的过滤，你经常忘记把它们写下来，在下一次使用的时候又需要重来一遍
-
-例如，获得真正的RBD图像尺寸，从一个特定的OSD列出所有主要PG或更复杂的像得到了承载特定RBD图像的所有的OSD​​或节点查询。
-
-Ceph-lazy，对你，让你不要松时间对管道命令，并很快得到你想要的结果。
-
-Ceph的懒不会在您的集群上执行任何写操作，只会读取，所以放心的使用
-
-
 ## WHAT CAN I DO
 
 Ceph-lazy is currently splitted into five categories: Host - PGs - RBD - OSD and Objects; each category offers a number of commands. List of commands can be reviewed by using the -h option or invoking ceph-lazy without any argument. 
