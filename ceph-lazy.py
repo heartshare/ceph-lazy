@@ -26,8 +26,8 @@ def main():
         else:
             print "list_all_nodes                             列出所有的存储主机节点"
     if sys.argv[1] == 'host-osd-usage':
-        if len(sys.argv) == 3:
-             show_host_osd_usage()
+        if len(sys.argv) == 3 :
+            show_host_osd_usage()
         else:
             print "host-osd-usage    hostname                      Show total OSD space usage of a particular node (-d for details)."
 
@@ -60,18 +60,25 @@ def list_all_nodes() :
 #Print Total OSD usage of a particular storage host
 #
 def show_host_osd_usage():
+    osd_size_kb_list=[]
+    osd_used_kb_list=[]
+    osd_available_kb_list=[]
     list_host_osds = commands.getoutput('ceph  pg dump  osds --format json 2>1')
     json_str = json.loads(list_host_osds)
-    for a in list_osd_from_host():
-        print a
-#    print json_str
-#    print list_osd_from_host()
-#    for osd in list_osd_from_host():
-#        print osd
-#    for item in json_str:
-#        if item['osd'] == 1:
-#            print item['kb']
-
+    for osdnum in list_osd_from_host():
+        for item in json_str:
+            if item['osd'] == osdnum:
+                osd_size_kb_list.append(item['kb'])
+                osd_used_kb_list.append(item['kb_used'])
+                osd_available_kb_list.append(item['kb_avail'])
+#                if str(sys.argv[3]) == "detail":
+#                    print "OSD:"+ str(osdnum)
+#                else:
+#                    print "host-osd-usage    < hostname >  detail" 
+    OSDsum = sum(osd_size_kb_list)/1024/1024.0
+    OSDused = sum(osd_used_kb_list)/1024/1024.0
+    OSDavailable = sum(osd_available_kb_list)/1024/1024.0
+    print "Host"+":"+str(sys.argv[2])+" | " + "OSDs:"+ str(len(osd_size_kb_list))+" | "+ "Total_Size:"+str(float('%.1f'%OSDsum))+"GB"+" | "+ "Total_Used:"+ str(float('%.1f'%OSDused)) +"GB"+" | "+"Total_Available:" + str(float('%.1f'%OSDavailable)) + "GB"
 
 #
 # check requirements for this script
