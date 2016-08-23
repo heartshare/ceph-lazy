@@ -4,16 +4,21 @@ import os
 import sys
 import commands
 import json
+import optparse
+
 
 VERSION="1.1.2"
 
 def main():
-	
+	if len(sys.argv) == 1:  
+		sys.argv.append("-h")  
 	if sys.argv[1] == '-h' or sys.argv[1] == 'help':
 		help()
 	if sys.argv[1] == 'host-get-osd':
-		list_osd_from_host()
-
+		if len(sys.argv) == 3:
+			list_osd_from_host()
+		else:
+			print "host-get-osd <hostname>"
 #
 # list osd from host
 #
