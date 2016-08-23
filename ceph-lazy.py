@@ -10,45 +10,85 @@ import optparse
 VERSION="1.1.2"
 
 def main():
-	if len(sys.argv) == 1:  
-		sys.argv.append("-h")  
-	if sys.argv[1] == '-h' or sys.argv[1] == 'help':
-		help()
-	if sys.argv[1] == 'host-get-osd':
-		if len(sys.argv) == 3:
-			list_osd_from_host()
-		else:
-			print "host-get-osd <hostname>"
+    if len(sys.argv) == 1:  
+        sys.argv.append("-h")  
+    if sys.argv[1] == '-h' or sys.argv[1] == 'help':
+        help()
+    if sys.argv[1] == 'host-get-osd':
+        if len(sys.argv) == 3:
+            for osd in list_osd_from_host():
+                print osd
+        else:
+            print "host-get-osd <hostname>                    列出节点上的所有的osd."
+    if sys.argv[1] == 'list_all_nodes':
+        if len(sys.argv) == 2:
+            list_all_nodes()
+        else:
+            print "list_all_nodes                             列出所有的存储主机节点"
+    if sys.argv[1] == 'host-osd-usage':
+        if len(sys.argv) == 3:
+             show_host_osd_usage()
+        else:
+            print "host-osd-usage    hostname                      Show total OSD space usage of a particular node (-d for details)."
+
 #
-# list osd from host
+# List osd from host
 #
 def list_osd_from_host():
-	if len(sys.argv) <= 2:
-		print "more args"
-	list_osd_tree = commands.getoutput('ceph osd tree --format json-pretty')
-	json_str = json.loads(list_osd_tree)
-	for item in  json_str["nodes"]:
-		if item['name'] == sys.argv[2] and item['type'] == 'host':
-			item['children'].sort()
-			for osd in item['children']:
-				print osd
+    osdlist = []
+    list_osd_tree = commands.getoutput('ceph osd tree --format json-pretty 2>1')
+    json_str = json.loads(list_osd_tree)
+    for item in  json_str["nodes"]:
+        if item['name'] == sys.argv[2] and item['type'] == 'host':
+            item['children'].sort()
+            for osd in item['children']:
+                osdlist.append(osd)
+    return osdlist
+#
+# List all OSD nodes
+#
+
+def list_all_nodes() :
+    list_all_host = commands.getoutput('ceph osd tree --format json-pretty 2>1')	
+    json_str = json.loads(list_all_host)
+    for item in  json_str["nodes"]:
+        if item['type'] == 'host':
+            print item['name']
+            
+
+#
+#Print Total OSD usage of a particular storage host
+#
+def show_host_osd_usage():
+    list_host_osds = commands.getoutput('ceph  pg dump  osds --format json 2>1')
+    json_str = json.loads(list_host_osds)
+    for a in list_osd_from_host():
+        print a
+#    print json_str
+#    print list_osd_from_host()
+#    for osd in list_osd_from_host():
+#        print osd
+#    for item in json_str:
+#        if item['osd'] == 1:
+#            print item['kb']
+
 
 #
 # check requirements for this script
 #
 
 def check_requirements():
-	(checkceph, output) = commands.getstatusoutput('ceph --version >/dev/null 2>&1')
-	(checkrados, output) = commands.getstatusoutput('rados --version >/dev/null 2>&1')
-	(checkrbd, output) = commands.getstatusoutput('rbd --version >/dev/null 2>&1')
-	(checkosdmaptool, output) = commands.getstatusoutput('osdmaptool --version >/dev/null 2>&1')
-        checkstatus = checkceph or checkrados or checkrbd or checkosdmaptool
-	if checkstatus != 0:
-		print 'some command not found!'
-		print commands.getoutput('ceph --version 1 > /dev/null')
-		print commands.getoutput('rados --version 1 > /dev/null')
-		print commands.getoutput('rbd --version 1 > /dev/null')
-		print commands.getoutput('osdmaptool --version 1 > /dev/null')
+    (checkceph, output) = commands.getstatusoutput('ceph --version >/dev/null 2>&1')
+    (checkrados, output) = commands.getstatusoutput('rados --version >/dev/null 2>&1')
+    (checkrbd, output) = commands.getstatusoutput('rbd --version >/dev/null 2>&1')
+    (checkosdmaptool, output) = commands.getstatusoutput('osdmaptool --version >/dev/null 2>&1')
+    checkstatus = checkceph or checkrados or checkrbd or checkosdmaptool
+    if checkstatus != 0:
+        print 'some command not found!'
+        print commands.getoutput('ceph --version 1 > /dev/null')
+        print commands.getoutput('rados --version 1 > /dev/null')
+        print commands.getoutput('rbd --version 1 > /dev/null')
+        print commands.getoutput('osdmaptool --version 1 > /dev/null')
 
 
 #
@@ -56,7 +96,7 @@ def check_requirements():
 #
 
 def help():
-	print """Usage : ceph-lazy [-d | -h] [command] [parameters]
+    print """Usage : ceph-lazy [-d | -h] [command] [parameters]
 Ceph complex quering tool - Version $VERSION
 OPTIONS
 ========
@@ -67,8 +107,8 @@ COMMANDS
     --------
    |  Host  |
     --------
-    host-get-osd      hostname                      List all OSD IDs attached to a particular node.
-    host-get-nodes                                  List all storage nodes.
+    host-get-osd      hostname                      列出节点上的所有的OSD.
+    host-get-nodes                                  列出所有的存储节点.
     host-osd-usage    hostname                      Show total OSD space usage of a particular node (-d for details).
     host-all-usage                                  Show total OSD space usage of each nodes (-d for details)
     Placement groups
@@ -108,5 +148,5 @@ COMMANDS
 
 
 if __name__ == '__main__':
-	check_requirements()
-	main()
+    check_requirements()
+    main()
