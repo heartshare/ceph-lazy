@@ -3,6 +3,37 @@
 
 Ceph-lazy - Be efficient, be lazy !
 
+
+##重构进度
+
+-     host-get-osd      (done)
+-     host-get-nodes    (done)                             
+-     host-osd-usage    (done)
+-     host-all-usage                                  
+-     pg-get-host       
+-     pg-most-write                                   
+-     pg-less-write                                  
+-     pg-most-write-kb                               
+-     pg-less-write-kb                                
+-     pg-most-read                                    
+-     pg-less-read                                   
+-     pg-most-read-kb                                 
+-     pg-less-read-kb                               
+-     pg-empty                                        
+-     rbd-prefix       
+-     rbd-count         
+-     rbd-host         
+-     rbd-osd           
+-     rbd-size         
+-     rbd-all-size      
+-     osd-most-used                                   
+-     osd-less-used                                   
+-     osd-get-ppg      
+-     osd-get-pg       
+-     object-get-host   
+
+
+
 ## WHAT IS THAT
 
 Ceph CLI is very complete, it can do pretty much everything. However there are certain tasks that require two or more steps with nasty grep/sed which take time and you usually forget to write them down for the next time.
@@ -32,9 +63,9 @@ The current set of commands is as follow :
 
     Host
     -----
-    host-get-osd      hostname                      List all OSD IDs attached to a particular node.
-    host-get-nodes                                  List all storage nodes.
-    host-osd-usage    hostname                      Show total OSD space usage of a particular node (-d for details).
+    host-get-osd      hostname                      列出节点上的所有的OSD.
+    host-get-nodes                                  列出所有的存储节点.
+    host-osd-usage    hostname        [detail]      列出存储节点上的存储使用的情况(detail看详细信息).
     host-all-usage                                  Show total OSD space usage of each nodes (-d for details)
 
 
