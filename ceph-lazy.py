@@ -26,10 +26,12 @@ def main():
         else:
             print "list_all_nodes                             列出所有的存储主机节点"
     if sys.argv[1] == 'host-osd-usage':
-        if len(sys.argv) == 3 :
+        if len(sys.argv) == 3:
+            show_host_osd_usage()
+        elif len(sys.argv) == 4 and sys.argv[3] == "detail":
             show_host_osd_usage()
         else:
-            print "host-osd-usage    hostname                      Show total OSD space usage of a particular node (-d for details)."
+            print "host-osd-usage    hostname       [detail]               列出存储节点上的存储使用的情况(detail看详细信息)"
 
 #
 # List osd from host
@@ -60,6 +62,7 @@ def list_all_nodes() :
 #Print Total OSD usage of a particular storage host
 #
 def show_host_osd_usage():
+    
     osd_size_kb_list=[]
     osd_used_kb_list=[]
     osd_available_kb_list=[]
@@ -71,10 +74,12 @@ def show_host_osd_usage():
                 osd_size_kb_list.append(item['kb'])
                 osd_used_kb_list.append(item['kb_used'])
                 osd_available_kb_list.append(item['kb_avail'])
-#                if str(sys.argv[3]) == "detail":
-#                    print "OSD:"+ str(osdnum)
-#                else:
-#                    print "host-osd-usage    < hostname >  detail" 
+                if  len(sys.argv) == 4:
+                    OSDsinglesize = item['kb']/1024/1024.0
+                    OSDsingleused = item['kb_used']/1024/1024.0
+                    OSDsingleavailable = item['kb_avail']/1024/1024.0
+                    print "OSD:"+ str(osdnum) + " | " + "Size:" +str(float('%.1f'%OSDsinglesize)) +"GB"+ " | " +"Used:" + str(float('%.1f'%OSDsingleused))+ "GB" + " | " +"Available:" + str(float('%.1f'%OSDsingleavailable))+"GB"
+
     OSDsum = sum(osd_size_kb_list)/1024/1024.0
     OSDused = sum(osd_used_kb_list)/1024/1024.0
     OSDavailable = sum(osd_available_kb_list)/1024/1024.0
@@ -116,7 +121,7 @@ COMMANDS
     --------
     host-get-osd      hostname                      列出节点上的所有的OSD.
     host-get-nodes                                  列出所有的存储节点.
-    host-osd-usage    hostname                      Show total OSD space usage of a particular node (-d for details).
+    host-osd-usage    hostname     [detail]         列出存储节点上的存储使用的情况(detail看详细信息)
     host-all-usage                                  Show total OSD space usage of each nodes (-d for details)
     Placement groups
     --------
