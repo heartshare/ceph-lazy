@@ -6,7 +6,6 @@ import commands
 import json
 import optparse
 
-
 VERSION="1.1.2"
 
 def main():
@@ -43,12 +42,23 @@ def main():
         else:
             print "host-all-usage                   [detail]               列出所有存储节点上的存储使用的情况(detail看详细信息)"
 
+    if sys.argv[1] == 'pg-get-host':
+        if len(sys.argv) == 3:
+            try:
+                for item in  find_host_from_pg(sys.argv[2]):
+                    print item
+            except:
+                print "Nothing out put ,check your pg id!"
+        else:
+            print "pg-get-host       pgid                                  列出PG所在的节点(first is primary)"
+
+
 #
 # List osd from host(修改函数为传参数进去的形式，直接在函数调用的时候输入命令行传递的参数，方便其他函数调用)
 #
 def list_osd_from_host( hostname ):
     osdlist = []
-    list_osd_tree = commands.getoutput('ceph osd tree --format json-pretty 2>1')
+    list_osd_tree = commands.getoutput('ceph osd tree --format json-pretty 2>/dev/null')
     json_str = json.loads(list_osd_tree)
     for item in  json_str["nodes"]:
         if item['name'] == hostname and item['type'] == 'host':
@@ -62,14 +72,16 @@ def list_osd_from_host( hostname ):
 
 def list_all_nodes() :
     nodelist = []
-    list_all_host = commands.getoutput('ceph osd tree --format json-pretty 2>1')	
-    json_str = json.loads(list_all_host)
+    list_all_host = commands.getoutput('ceph osd tree --format json-pretty 2>/dev/null')	
+    try:
+        json_str = json.loads(list_all_host)
+    except:
+        print "no  data"
     for item in  json_str["nodes"]:
         if item['type'] == 'host':
             nodelist.append(item['name'])
     return nodelist
             
-
 #
 #Print Total OSD usage of a particular storage host
 #
@@ -78,7 +90,7 @@ def show_host_osd_usage(hostname,detail):
     osd_used_kb_list=[]
     osd_available_kb_list=[]
     result_list=[]
-    list_host_osds = commands.getoutput('ceph  pg dump  osds --format json 2>1')
+    list_host_osds = commands.getoutput('ceph  pg dump  osds --format json 2>/dev/null')
     json_str = json.loads(list_host_osds)
     for osdnum in list_osd_from_host(hostname):
         for item in json_str:
@@ -106,11 +118,27 @@ def list_all_nodes_osd_usage(detail):
         for item in show_host_osd_usage(node,detail):
             print item
 
+#
+#  Print the host that hosts a specific PG
+#
+
+def find_host_from_pg(pgname):
+    result_list=[]
+    list_pg = commands.getoutput('ceph  pg %s  query 2>/dev/null' %pgname )
+    try:
+        json_str = json.loads(list_pg)
+    except:
+        print "can not get pg data !"
+    else:
+        for item in  json_str["up"]:
+            osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %item )
+            json_str = json.loads(osd_localtion)
+            result_list.append( "OSD:"+"osd."+str(item)+ " | "+ "Host :"+ json_str["crush_location"]["host"])
+        return result_list
 
 #
 # check requirements for this script
 #
-
 def check_requirements():
     (checkceph, output) = commands.getstatusoutput('ceph --version >/dev/null 2>&1')
     (checkrados, output) = commands.getstatusoutput('rados --version >/dev/null 2>&1')
@@ -123,7 +151,6 @@ def check_requirements():
         print commands.getoutput('rados --version 1 > /dev/null')
         print commands.getoutput('rbd --version 1 > /dev/null')
         print commands.getoutput('osdmaptool --version 1 > /dev/null')
-
 
 #
 #print help info
@@ -179,7 +206,6 @@ COMMANDS
     --------
     object-get-host   pool_name object_id           Find object storage hosts (first is primary)
 """
-
 
 if __name__ == '__main__':
     check_requirements()
