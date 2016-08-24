@@ -52,6 +52,12 @@ def main():
         else:
             print "pg-get-host       pgid                                  列出PG所在的节点(first is primary)"
 
+    if sys.argv[1] == 'pg-most-write':
+        if len(sys.argv) == 2:
+            print pg_stat_query( "pg-most-write" )           
+        else:
+            print "pg-most-write               列出写操作最多的PG ( operations number)"
+
 
 #
 # List osd from host(修改函数为传参数进去的形式，直接在函数调用的时候输入命令行传递的参数，方便其他函数调用)
@@ -132,9 +138,29 @@ def find_host_from_pg(pgname):
     else:
         for item in  json_str["up"]:
             osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %item )
-            json_str = json.loads(osd_localtion)
-            result_list.append( "OSD:"+"osd."+str(item)+ " | "+ "Host :"+ json_str["crush_location"]["host"])
+            json_str1 = json.loads(osd_localtion)
+            result_list.append( "OSD:"+"osd."+str(item)+ " | "+ "Host :"+ json_str1["crush_location"]["host"])
         return result_list
+
+
+
+def pg_stat_query(arg):
+    list_pgs = commands.getoutput('ceph  pg dump  pgs --format json 2>/dev/null')
+    json_str = json.loads(list_pgs)
+#    print json_str
+    if arg == "pg-most-write":
+        max_num_write_item = max(json_str, key=lambda x:x['stat_sum']["num_write"])
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_write_item["acting_primary"]) ) 
+        json_str1 = json.loads(osd_localtion)
+        host=json_str1["crush_location"]["host"]
+        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+
+
+#    print max_priced_item
+#    for item in json_str:
+#        print item["stat_sum"]["num_write"]
+#        print item["pgid"]
+
 
 #
 # check requirements for this script

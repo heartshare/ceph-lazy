@@ -11,7 +11,7 @@ Ceph-lazy - Be efficient, be lazy !
 -     host-osd-usage    (done)
 -     host-all-usage    (done)                             
 -     pg-get-host       (done)
--     pg-most-write                                   
+-     pg-most-write     (done)                             
 -     pg-less-write                                  
 -     pg-most-write-kb                               
 -     pg-less-write-kb                                
