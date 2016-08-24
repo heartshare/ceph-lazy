@@ -9,7 +9,7 @@ Ceph-lazy - Be efficient, be lazy !
 -     host-get-osd      (done)
 -     host-get-nodes    (done)                             
 -     host-osd-usage    (done)
--     host-all-usage                                  
+-     host-all-usage    (done)                             
 -     pg-get-host       
 -     pg-most-write                                   
 -     pg-less-write                                  
