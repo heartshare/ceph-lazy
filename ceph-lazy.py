@@ -103,6 +103,17 @@ def main():
         else:
             print "pg-empty                        列出空的PG (没有存储对象) "
 
+    if sys.argv[1] == 'rbd-prefix':
+        if len(sys.argv) == 4:
+            try:
+                print get_rbd_prefix(sys.argv[2],sys.argv[3])    
+            except:
+                print "no data!"
+        else:
+            print "rbd-prefix        pool_name image_name         列出RBD的prefix"
+
+
+
 
 #
 # List osd from host(修改函数为传参数进去的形式，直接在函数调用的时候输入命令行传递的参数，方便其他函数调用)
@@ -254,6 +265,22 @@ def find_empty_pg():
         if item['stat_sum']['num_objects'] == 0:
             null_pg_list.append(item['pgid'])
     return null_pg_list
+
+
+
+#
+#  Return RBD prefix from image name
+#
+def get_rbd_prefix(poolname,imagename):
+    rbd_info = commands.getoutput('rbd --image %s -p %s info --format json 2> /dev/null' %(imagename,poolname) )
+    try:
+        json_str = json.loads(rbd_info)
+    except:
+        print "no rbd data found!check your poolname and imagename!"
+    return json_str["block_name_prefix"]
+    
+
+
 #
 # check requirements for this script
 #
