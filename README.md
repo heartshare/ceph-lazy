@@ -12,16 +12,16 @@ Ceph-lazy - Be efficient, be lazy !
 -     host-all-usage    (done)                             
 -     pg-get-host       (done)
 -     pg-most-write     (done)                             
--     pg-less-write                                  
--     pg-most-write-kb                               
--     pg-less-write-kb                                
--     pg-most-read                                    
--     pg-less-read                                   
--     pg-most-read-kb                                 
--     pg-less-read-kb                               
--     pg-empty                                        
--     rbd-prefix       
--     rbd-count         
+-     pg-less-write     (done)                           
+-     pg-most-write-kb  (done)                         
+-     pg-less-write-kb  (done)                          
+-     pg-most-read      (done)                            
+-     pg-less-read      (done)                          
+-     pg-most-read-kb   (done)                          
+-     pg-less-read-kb   (done)                        
+-     pg-empty          (done)                            
+-     rbd-prefix        (done)
+-     rbd-count         (done)
 -     rbd-host         
 -     rbd-osd           
 -     rbd-size         
