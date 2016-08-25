@@ -58,6 +58,51 @@ def main():
         else:
             print "pg-most-write               列出写操作最多的PG ( operations number)"
 
+    if sys.argv[1] == 'pg-less-write':
+        if len(sys.argv) == 2:
+            print pg_stat_query( "pg-less-write" )
+        else:
+            print "pg-less-write               列出写操作最少的PG ( operations number)"
+    if sys.argv[1] == 'pg-most-write-kb':
+        if len(sys.argv) == 2:
+            print pg_stat_query( "pg-most-write-kb" )
+        else:
+            print "pg-most-write-kb               列出写操作最多的PG (data written) "
+    if sys.argv[1] == 'pg-less-write-kb':
+        if len(sys.argv) == 2:
+            print pg_stat_query( "pg-less-write-kb" )
+        else:
+            print "pg-less-write-kb               列出写操作最少的PG (data written) "
+    if sys.argv[1] == 'pg-most-read':
+        if len(sys.argv) == 2:
+            print pg_stat_query( "pg-most-read" )
+        else:
+            print "pg-most-read               列出读操作最多的PG (operations number) "
+
+    if sys.argv[1] == 'pg-less-read':
+        if len(sys.argv) == 2:
+            print pg_stat_query( "pg-less-read" )
+        else:
+            print "pg-less-read               列出读操作最少的PG (operations number) "
+
+    if sys.argv[1] == 'pg-most-read-kb':
+        if len(sys.argv) == 2:
+            print pg_stat_query( "pg-most-read-kb" )
+        else:
+            print "pg-most-read-kb               列出读操作最多的PG (data written) "
+    if sys.argv[1] == 'pg-less-read-kb':
+        if len(sys.argv) == 2:
+            print pg_stat_query( "pg-less-read-kb" )
+        else:
+            print "pg-less-read-kb               列出读操作最少的PG (data written) "
+
+    if sys.argv[1] == 'pg-empty':
+        if len(sys.argv) == 2:
+            for item in find_empty_pg():
+                print item
+        else:
+            print "pg-empty                        列出空的PG (没有存储对象) "
+
 
 #
 # List osd from host(修改函数为传参数进去的形式，直接在函数调用的时候输入命令行传递的参数，方便其他函数调用)
@@ -143,7 +188,9 @@ def find_host_from_pg(pgname):
         return result_list
 
 
-
+#
+#  Query PG stats
+#
 def pg_stat_query(arg):
     list_pgs = commands.getoutput('ceph  pg dump  pgs --format json 2>/dev/null')
     json_str = json.loads(list_pgs)
@@ -154,14 +201,59 @@ def pg_stat_query(arg):
         json_str1 = json.loads(osd_localtion)
         host=json_str1["crush_location"]["host"]
         return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+    if arg == "pg-less-write":
+        min_num_write_item = min(json_str, key=lambda x:x['stat_sum']["num_write"])
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(min_num_write_item["acting_primary"]) )
+        json_str1 = json.loads(osd_localtion)
+        host=json_str1["crush_location"]["host"]
+        return  "PG:"+str(min_num_write_item["pgid"])+" | "+"OSD:osd."+str(min_num_write_item["acting_primary"])+" | "+"Host:"+str(host)        
+    if arg == "pg-most-write-kb":
+        max_num_write_item = max(json_str, key=lambda x:x['stat_sum']["num_write_kb"])
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_write_item["acting_primary"]) )
+        json_str1 = json.loads(osd_localtion)
+        host=json_str1["crush_location"]["host"]
+        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+    if arg == "pg-less-write-kb":
+        min_num_write_item = min(json_str, key=lambda x:x['stat_sum']["num_write_kb"])
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(min_num_write_item["acting_primary"]) )
+        json_str1 = json.loads(osd_localtion)
+        host=json_str1["crush_location"]["host"]
+        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+    if arg == "pg-most-read":
+        max_num_read_item = max(json_str, key=lambda x:x['stat_sum']["num_read"])
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_read_item["acting_primary"]) )
+        json_str1 = json.loads(osd_localtion)
+        host=json_str1["crush_location"]["host"]
+        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+    if arg == "pg-less-read":
+        min_num_read_item = max(json_str, key=lambda x:x['stat_sum']["num_read"])
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(min_num_read_item["acting_primary"]) )
+        json_str1 = json.loads(osd_localtion)
+        host=json_str1["crush_location"]["host"]
+        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+    if arg == "pg-most-read-kb":
+        max_num_read_item = max(json_str, key=lambda x:x['stat_sum']["num_read_kb"])
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_read_item["acting_primary"]) )
+        json_str1 = json.loads(osd_localtion)
+        host=json_str1["crush_location"]["host"]
+        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+
+    if arg == "pg-less-read-kb":
+        min_num_read_item = min(json_str, key=lambda x:x['stat_sum']["num_read_kb"])
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(min_num_read_item["acting_primary"]) )
+        json_str1 = json.loads(osd_localtion)
+        host=json_str1["crush_location"]["host"]
+        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
 
 
-#    print max_priced_item
-#    for item in json_str:
-#        print item["stat_sum"]["num_write"]
-#        print item["pgid"]
-
-
+def find_empty_pg():
+    null_pg_list=[]
+    null_pg = commands.getoutput('ceph pg dump pgs --format json 2>/dev/null' )
+    json_str = json.loads(null_pg)
+    for item in json_str:
+        if item['stat_sum']['num_objects'] == 0:
+            null_pg_list.append(item['pgid'])
+    return null_pg_list
 #
 # check requirements for this script
 #
