@@ -112,6 +112,14 @@ def main():
         else:
             print "rbd-prefix        pool_name image_name         列出RBD的prefix"
 
+    if sys.argv[1] == 'rbd-count':
+        if len(sys.argv) == 4:
+            try:
+                print count_rbd_object(sys.argv[2],sys.argv[3])
+            except:
+                print "no data!"
+        else:
+            print "rbd-count        pool_name image_name         列出RBD的count"
 
 
 
@@ -278,6 +286,25 @@ def get_rbd_prefix(poolname,imagename):
     except:
         print "no rbd data found!check your poolname and imagename!"
     return json_str["block_name_prefix"]
+
+#
+#  Return RBD count from image name
+#
+def count_rbd_object(poolname,imagename):
+    rbd_prefix=get_rbd_prefix(poolname,imagename)
+    nb_obj=commands.getoutput('rados -p  %s  ls|grep %s|wc -l  2>/dev/null' %(poolname,rbd_prefix) )
+    return """
+    RBD image %s/%s has prefix %s; now couning objects...
+    count: %s    
+    """  %(poolname,imagename,rbd_prefix,nb_obj)
+
+#    rbd_info = commands.getoutput('rbd --image %s -p %s info --format json 2> /dev/null' %(imagename,poolname) )
+#    try:
+#        json_str = json.loads(rbd_info)
+#    except:
+#        print "no rbd data found!check your poolname and imagename!"
+#    return json_str["block_name_prefix"]
+
     
 
 
