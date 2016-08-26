@@ -126,7 +126,8 @@ def main():
     if sys.argv[1] == 'rbd-host':
         if len(sys.argv) == 4:
             try:
-                print find_prim_host_from_rbd(sys.argv[2],sys.argv[3])
+                for item in  find_prim_host_from_rbd(sys.argv[2],sys.argv[3]):
+                    print "Primary Osd:",item
             except:
                 print "no data!"
         else:
@@ -312,22 +313,23 @@ def count_rbd_object(poolname,imagename):
 #  Find primary storage host for a given RBD image
 #
 def find_prim_host_from_rbd(poolname,imagename):
+    pri_osd=[]
     rbd_prefix=get_rbd_prefix(poolname,imagename)
     print rbd_prefix
     pool_info=commands.getoutput('ceph osd lspools -f json  2>/dev/null')
     json_str = json.loads(pool_info)
-    commands.getoutput('ceph osd getmap > /tmp/osdmap-%s  2>/dev/null' % os.getpid())
+    commands.getoutput('ceph osd getmap > /tmp/mytmposdmap-%s  2>/dev/null' % os.getpid())
     for item in json_str:
         if item["poolname"]==poolname:
             pool_id=item["poolnum"]
-    print pool_id
-    osdmap=commands.getoutput('ceph osd getmap  2>/dev/null')
     obj=commands.getoutput('rados -p %s ls | grep %s  2>/dev/null' %(poolname,rbd_prefix))
     for item in obj.split():
-        print pool_id
-        osd=commands.getoutput('osdmaptool  --test-map-object %s --pool %s /tmp/osdmap-%s 2>/dev/null| awk \'{print $6}\'' %(item,pool_id,os.getpid()))
-        print osd
-    os.remove('/tmp/osdmap-%s' %os.getpid())
+        osd=commands.getoutput('osdmaptool  --test-map-object %s --pool %s /tmp/mytmposdmap-%s 2>/dev/null|awk \'{print $6}\'' %(item,pool_id,os.getpid()))
+        json_str = json.loads(osd)
+        pri_osd.append(json_str[0])
+    os.remove('/tmp/mytmposdmap-%s' %os.getpid())
+    return {}.fromkeys(pri_osd).keys()
+
 #
 # check requirements for this script
 #
