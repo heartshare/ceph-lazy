@@ -26,7 +26,7 @@ Ceph-lazy - Be efficient, be lazy !
 -     rbd-osd           (done) 
 -     rbd-size          (done)
 -     rbd-all-size      (done)
--     osd-most-used                                   
+-     osd-most-used     (done)                             
 -     osd-less-used                                   
 -     osd-get-ppg      
 -     osd-get-pg       
