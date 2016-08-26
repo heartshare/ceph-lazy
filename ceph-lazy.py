@@ -171,7 +171,14 @@ def main():
         else:
             print "osd-most-used                                   Show the most used OSD (capacity)"
 
-
+    if sys.argv[1] == 'osd-less-used':
+        if len(sys.argv) == 2:
+            try:
+                print find_less_used_osd()
+            except:
+                print "no data!"
+        else:
+            print "osd-most-used                                   Show the most used OSD (capacity)"
 
 
 #
@@ -432,6 +439,17 @@ def find_most_used_osd():
     osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %most_used_osd_item["osd"] )
     json_str1 = json.loads(osd_localtion)
     return  "OSD:osd.%s | Host: %s | Used: %s GB" %(most_used_osd_item["osd"],json_str1["crush_location"]["host"],most_used_osd_item["kb_used"]/1024/1024)
+
+
+def find_less_used_osd():
+    osd=commands.getoutput('ceph pg dump osds --format json 2> /dev/null')
+    json_str = json.loads(osd)
+    less_used_osd_item = min(json_str, key=lambda x:x['kb_used'])
+    osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %less_used_osd_item["osd"] )
+    json_str1 = json.loads(osd_localtion)
+    return  "OSD:osd.%s | Host: %s | Used: %s GB" %(less_used_osd_item["osd"],json_str1["crush_location"]["host"],less_used_osd_item["kb_used"]/1024/1024)
+
+
 
 
 #
