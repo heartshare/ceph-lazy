@@ -29,7 +29,7 @@ Ceph-lazy - Be efficient, be lazy !
 -     osd-most-used     (done)                             
 -     osd-less-used  	(done)                                 
 -     osd-get-ppg       (done) 
--     osd-get-pg       
+-     osd-get-pg        (done)
 -     object-get-host   
 
 
