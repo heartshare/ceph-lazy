@@ -190,6 +190,16 @@ def main():
         else:
             print "osd-get-ppg       osd_id                        Show all primaries PGS hosted on a OSD"
 
+    if sys.argv[1] == 'osd-get-pg':
+        if len(sys.argv) == 3:
+            try:
+                for item in find_all_pg_from_osd(sys.argv[2]):
+                    print item
+            except:
+                print "no data!"
+        else:
+            print "osd-get-pg       osd_id                        Show all PGS hosted on a OSD"
+
 
 
 
@@ -470,6 +480,21 @@ def find_prim_pg_from_osd(osd_id):
         if str(item["acting_primary"])==str(osd_id):
             pri_pg_list.append(item["pgid"])
     return pri_pg_list   
+
+def find_all_pg_from_osd(osd_id):
+    all_pg_list=[]
+    pg_info=commands.getoutput('ceph pg  dump pgs --format json 2>/dev/null')
+    json_str = json.loads(pg_info)
+    for item in  json_str:
+        if  int(osd_id)  in item["up"]:
+            all_pg_list.append(item["pgid"])
+    return all_pg_list
+#    for item in json_str:
+#        print osd_id
+#        if str(item["acting_primary"])==str(osd_id):
+#            pri_pg_list.append(item["pgid"])
+#    return pri_pg_list
+
 
 
 #
