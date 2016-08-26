@@ -127,11 +127,22 @@ def main():
         if len(sys.argv) == 4:
             try:
                 for item in  find_prim_host_from_rbd(sys.argv[2],sys.argv[3]):
-                    print "Primary Osd:",item
+                    print "Primary Host:",item
             except:
                 print "no data!"
         else:
             print "rbd-host          pool_name image_name          Find RBD primary storage hosts"
+
+    if sys.argv[1] == 'rbd-osd':
+        if len(sys.argv) == 4:
+            try:
+                for item in  find_prim_osd_from_rbd(sys.argv[2],sys.argv[3]):
+                    print "Primary Osd:",item
+            except:
+                print "no data!"
+        else:
+            print "rbd-osd          pool_name image_name          Find RBD primary OSDs"
+
 
 
 #
@@ -314,8 +325,9 @@ def count_rbd_object(poolname,imagename):
 #
 def find_prim_host_from_rbd(poolname,imagename):
     pri_osd=[]
+    pri_host=[]
     rbd_prefix=get_rbd_prefix(poolname,imagename)
-    print rbd_prefix
+#    print rbd_prefix
     pool_info=commands.getoutput('ceph osd lspools -f json  2>/dev/null')
     json_str = json.loads(pool_info)
     commands.getoutput('ceph osd getmap > /tmp/mytmposdmap-%s  2>/dev/null' % os.getpid())
@@ -324,11 +336,42 @@ def find_prim_host_from_rbd(poolname,imagename):
             pool_id=item["poolnum"]
     obj=commands.getoutput('rados -p %s ls | grep %s  2>/dev/null' %(poolname,rbd_prefix))
     for item in obj.split():
+# Map object to osd. osdmaptoot does not support json output so using dirty sed.
+        osd=commands.getoutput('osdmaptool  --test-map-object %s --pool %s /tmp/mytmposdmap-%s 2>/dev/null|awk \'{print $6}\'' %(item,pool_id,os.getpid()))
+        json_str = json.loads(osd)
+        pri_osd.append(json_str[0])
+    os.remove('/tmp/mytmposdmap-%s' %os.getpid())
+    osd_pri_list={}.fromkeys(pri_osd).keys()
+    for item in osd_pri_list:
+        osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %item )
+        json_str1 = json.loads(osd_localtion)
+        pri_host.append(json_str1["crush_location"]["host"])
+    return {}.fromkeys(pri_host).keys()
+
+#
+#  Find primary storage host for a given RBD image
+#
+def find_prim_osd_from_rbd(poolname,imagename):
+    pri_osd=[]
+    rbd_prefix=get_rbd_prefix(poolname,imagename)
+    pool_info=commands.getoutput('ceph osd lspools -f json  2>/dev/null')
+    json_str = json.loads(pool_info)
+    commands.getoutput('ceph osd getmap > /tmp/mytmposdmap-%s  2>/dev/null' % os.getpid())
+    for item in json_str:
+        if item["poolname"]==poolname:
+            pool_id=item["poolnum"]
+    obj=commands.getoutput('rados -p %s ls | grep %s  2>/dev/null' %(poolname,rbd_prefix))
+    for item in obj.split():
+# Map object to osd. osdmaptoot does not support json output so using dirty sed.
         osd=commands.getoutput('osdmaptool  --test-map-object %s --pool %s /tmp/mytmposdmap-%s 2>/dev/null|awk \'{print $6}\'' %(item,pool_id,os.getpid()))
         json_str = json.loads(osd)
         pri_osd.append(json_str[0])
     os.remove('/tmp/mytmposdmap-%s' %os.getpid())
     return {}.fromkeys(pri_osd).keys()
+
+
+
+
 
 #
 # check requirements for this script
