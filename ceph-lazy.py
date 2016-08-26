@@ -152,6 +152,16 @@ def main():
         else:
             print "rbd-size          pool_name image_name          Print RBD image real size"
 
+    if sys.argv[1] == 'rbd-all-size':
+        if len(sys.argv) == 3:
+            try:
+                for item in list_all_rbd_real_size(sys.argv[2]):
+                    print item
+            except:
+                print "no data!"
+        else:
+            print "rbd-all-size      pool_name                     Print all RBD images size (Top first)"
+    
 
 
 
@@ -388,6 +398,25 @@ def find_prim_osd_from_rbd(poolname,imagename):
 def print_rbd_real_size(poolname,imagename):
     rbd_real_size=commands.getoutput('rbd diff %s/%s | awk \'{ SUM += $2 } END { print SUM/1024/1024 " MB" }\'' %(poolname,imagename))
     return rbd_real_size
+
+
+
+#
+#  Print all RBD image real sizes - Top first
+#
+
+
+def  list_all_rbd_real_size(poolname):
+     all_rbd_size=[]
+     image_list=commands.getoutput('rbd -p %s ls 2>/dev/null' %poolname)
+     for item in image_list.split():
+        rbd_real_size=commands.getoutput('rbd diff %s/%s | awk \'{ SUM += $2 } END { print SUM/1024/1024 " MB" }\'' %(poolname,item))
+        rbd_size="Image:"+item+" |  "+"Real_size:"+rbd_real_size
+        all_rbd_size.append(rbd_size)
+     return all_rbd_size
+
+
+
 
 
 
