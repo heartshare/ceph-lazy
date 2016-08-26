@@ -180,6 +180,18 @@ def main():
         else:
             print "osd-most-used                                   Show the most used OSD (capacity)"
 
+    if sys.argv[1] == 'osd-get-ppg':
+        if len(sys.argv) == 3:
+            try:
+                for item in find_prim_pg_from_osd(sys.argv[2]):
+                    print item
+            except:
+                print "no data!"
+        else:
+            print "osd-get-ppg       osd_id                        Show all primaries PGS hosted on a OSD"
+
+
+
 
 #
 # List osd from host(修改函数为传参数进去的形式，直接在函数调用的时候输入命令行传递的参数，方便其他函数调用)
@@ -449,7 +461,15 @@ def find_less_used_osd():
     json_str1 = json.loads(osd_localtion)
     return  "OSD:osd.%s | Host: %s | Used: %s GB" %(less_used_osd_item["osd"],json_str1["crush_location"]["host"],less_used_osd_item["kb_used"]/1024/1024)
 
-
+def find_prim_pg_from_osd(osd_id):
+    pri_pg_list=[]
+    pg_info=commands.getoutput('ceph pg  dump pgs --format json 2>/dev/null')
+    json_str = json.loads(pg_info)
+    for item in json_str:
+#        print osd_id
+        if str(item["acting_primary"])==str(osd_id):
+            pri_pg_list.append(item["pgid"])
+    return pri_pg_list   
 
 
 #
