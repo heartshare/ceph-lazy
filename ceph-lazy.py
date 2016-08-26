@@ -200,6 +200,16 @@ def main():
         else:
             print "osd-get-pg       osd_id                        Show all PGS hosted on a OSD"
 
+    if sys.argv[1] == 'object-get-host':
+        if len(sys.argv) == 4:
+            try:
+                find_host_from_object(sys.argv[2],sys.argv[3])
+            except:
+                print "no data!"
+        else:
+            print "object-get-host   pool_name object_id           Find object storage hosts (first is primary)"
+
+
 
 
 
@@ -463,6 +473,11 @@ def find_most_used_osd():
     return  "OSD:osd.%s | Host: %s | Used: %s GB" %(most_used_osd_item["osd"],json_str1["crush_location"]["host"],most_used_osd_item["kb_used"]/1024/1024)
 
 
+
+#
+#  Find less used (space) OSD
+#
+
 def find_less_used_osd():
     osd=commands.getoutput('ceph pg dump osds --format json 2> /dev/null')
     json_str = json.loads(osd)
@@ -471,15 +486,24 @@ def find_less_used_osd():
     json_str1 = json.loads(osd_localtion)
     return  "OSD:osd.%s | Host: %s | Used: %s GB" %(less_used_osd_item["osd"],json_str1["crush_location"]["host"],less_used_osd_item["kb_used"]/1024/1024)
 
+#
+#  Print all primary pgs hosted by an OSD
+#
+
+
 def find_prim_pg_from_osd(osd_id):
     pri_pg_list=[]
     pg_info=commands.getoutput('ceph pg  dump pgs --format json 2>/dev/null')
     json_str = json.loads(pg_info)
     for item in json_str:
-#        print osd_id
         if str(item["acting_primary"])==str(osd_id):
             pri_pg_list.append(item["pgid"])
     return pri_pg_list   
+
+
+#
+#  Print all pgs (primay & secondary) hosted by an OSD
+#
 
 def find_all_pg_from_osd(osd_id):
     all_pg_list=[]
@@ -489,13 +513,19 @@ def find_all_pg_from_osd(osd_id):
         if  int(osd_id)  in item["up"]:
             all_pg_list.append(item["pgid"])
     return all_pg_list
-#    for item in json_str:
-#        print osd_id
-#        if str(item["acting_primary"])==str(osd_id):
-#            pri_pg_list.append(item["pgid"])
-#    return pri_pg_list
 
 
+#
+#  Print the host that hosts a specific object
+#
+
+
+def find_host_from_object(poolname,obj_id):
+    map_info=commands.getoutput('ceph osd map %s %s --format json 2> /dev/null' %(poolname,obj_id))
+    json_str=json.loads(map_info)
+    print "Pg: "+json_str["pgid"]
+    for item in find_host_from_pg(json_str["pgid"]):
+        print item
 
 #
 # check requirements for this script
