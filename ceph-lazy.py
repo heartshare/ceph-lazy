@@ -143,6 +143,16 @@ def main():
         else:
             print "rbd-osd          pool_name image_name          Find RBD primary OSDs"
 
+    if sys.argv[1] == 'rbd-size':
+        if len(sys.argv) == 4:
+            try:
+                print "Pool: "+sys.argv[2]+" | "+"Image:"+ sys.argv[3]+" | "+ "Read_size:"+print_rbd_real_size(sys.argv[2],sys.argv[3])
+            except:
+                print "no data!"
+        else:
+            print "rbd-size          pool_name image_name          Print RBD image real size"
+
+
 
 
 #
@@ -370,6 +380,14 @@ def find_prim_osd_from_rbd(poolname,imagename):
     return {}.fromkeys(pri_osd).keys()
 
 
+
+#
+#  Print RBD image real size - Source http://ceph.com/planet/real-size-of-a-ceph-rbd-image/
+#
+
+def print_rbd_real_size(poolname,imagename):
+    rbd_real_size=commands.getoutput('rbd diff %s/%s | awk \'{ SUM += $2 } END { print SUM/1024/1024 " MB" }\'' %(poolname,imagename))
+    return rbd_real_size
 
 
 
