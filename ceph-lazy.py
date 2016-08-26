@@ -4,8 +4,8 @@ import os
 import sys
 import commands
 import json
-import optparse
-import tempfile
+#import optparse
+#import tempfile
 
 
 VERSION="1.1.2"
@@ -18,9 +18,9 @@ def main():
     if sys.argv[1] == 'host-get-osd':
         if len(sys.argv) == 3:
             for osd in list_osd_from_host( sys.argv[2] ):
-                print osd
+                print "osd.%s " %osd
         else:
-            print "host-get-osd <hostname>                    列出节点上的所有的osd."
+            print "host-get-osd <hostname>                    列出节点上的所有的osd"
     if sys.argv[1] == 'host-get-nodes':
         if len(sys.argv) == 2:
             for node in list_all_nodes():
@@ -35,7 +35,7 @@ def main():
             for item in  show_host_osd_usage(sys.argv[2],True):
                 print item
         else:
-            print "host-osd-usage    hostname       [detail]               列出指定存储节点上的存储使用的情况(detail看详细信息)"
+            print "host-osd-usage    hostname       [detail]               列出指定存储主机上的存储使用的情况(detail看详细信息)"
     if sys.argv[1] == 'host-all-usage':
         if len(sys.argv) == 2:
             list_all_nodes_osd_usage(False)
@@ -121,7 +121,7 @@ def main():
             except:
                 print "no data!"
         else:
-            print "rbd-count        pool_name image_name         列出RBD的count"
+            print "rbd-count        pool_name image_name         列出RBD的对象数目"
 
     if sys.argv[1] == 'rbd-host':
         if len(sys.argv) == 4:
@@ -131,7 +131,7 @@ def main():
             except:
                 print "no data!"
         else:
-            print "rbd-host          pool_name image_name          Find RBD primary storage hosts"
+            print "rbd-host          pool_name image_name         列出RBD的Primary所在的存储主机"
 
     if sys.argv[1] == 'rbd-osd':
         if len(sys.argv) == 4:
@@ -141,16 +141,16 @@ def main():
             except:
                 print "no data!"
         else:
-            print "rbd-osd          pool_name image_name          Find RBD primary OSDs"
+            print "rbd-osd          pool_name image_name          列出RBD的Primary所在的OSD节点"
 
     if sys.argv[1] == 'rbd-size':
         if len(sys.argv) == 4:
             try:
-                print "Pool: "+sys.argv[2]+" | "+"Image:"+ sys.argv[3]+" | "+ "Read_size:"+print_rbd_real_size(sys.argv[2],sys.argv[3])
+                print "Pool: "+sys.argv[2]+" | "+"Image:"+ sys.argv[3]+" | "+ "Real_size:"+print_rbd_real_size(sys.argv[2],sys.argv[3])
             except:
                 print "no data!"
         else:
-            print "rbd-size          pool_name image_name          Print RBD image real size"
+            print "rbd-size          pool_name image_name         列出RBD的Image的真实大小"
 
     if sys.argv[1] == 'rbd-all-size':
         if len(sys.argv) == 3:
@@ -160,7 +160,7 @@ def main():
             except:
                 print "no data!"
         else:
-            print "rbd-all-size      pool_name                     Print all RBD images size (Top first)"
+            print "rbd-all-size      pool_name                     列出知道存储所有的RBD的Image的真实大小(Top first)"
     
     if sys.argv[1] == 'osd-most-used':
         if len(sys.argv) == 2:
@@ -303,7 +303,6 @@ def find_host_from_pg(pgname):
 def pg_stat_query(arg):
     list_pgs = commands.getoutput('ceph  pg dump  pgs --format json 2>/dev/null')
     json_str = json.loads(list_pgs)
-#    print json_str
     if arg == "pg-most-write":
         max_num_write_item = max(json_str, key=lambda x:x['stat_sum']["num_write"])
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_write_item["acting_primary"]) ) 
@@ -327,7 +326,7 @@ def pg_stat_query(arg):
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(min_num_write_item["acting_primary"]) )
         json_str1 = json.loads(osd_localtion)
         host=json_str1["crush_location"]["host"]
-        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+        return  "PG:"+str(min_num_write_item["pgid"])+" | "+"OSD:osd."+str(min_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
     if arg == "pg-most-read":
         max_num_read_item = max(json_str, key=lambda x:x['stat_sum']["num_read"])
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_read_item["acting_primary"]) )
@@ -335,11 +334,11 @@ def pg_stat_query(arg):
         host=json_str1["crush_location"]["host"]
         return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
     if arg == "pg-less-read":
-        min_num_read_item = max(json_str, key=lambda x:x['stat_sum']["num_read"])
+        min_num_read_item = min(json_str, key=lambda x:x['stat_sum']["num_read"])
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(min_num_read_item["acting_primary"]) )
         json_str1 = json.loads(osd_localtion)
         host=json_str1["crush_location"]["host"]
-        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+        return  "PG:"+str(min_num_read_item["pgid"])+" | "+"OSD:osd."+str(min_num_read_item["acting_primary"])+" | "+"Host:"+str(host)
     if arg == "pg-most-read-kb":
         max_num_read_item = max(json_str, key=lambda x:x['stat_sum']["num_read_kb"])
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_read_item["acting_primary"]) )
@@ -352,7 +351,7 @@ def pg_stat_query(arg):
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(min_num_read_item["acting_primary"]) )
         json_str1 = json.loads(osd_localtion)
         host=json_str1["crush_location"]["host"]
-        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+        return  "PG:"+str(min_num_read_item["pgid"])+" | "+"OSD:osd."+str(min_num_read_item["acting_primary"])+" | "+"Host:"+str(host)
 
 
 def find_empty_pg():
