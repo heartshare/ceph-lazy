@@ -22,7 +22,7 @@ Ceph-lazy - Be efficient, be lazy !
 -     pg-empty          (done)                            
 -     rbd-prefix        (done)
 -     rbd-count         (done)
--     rbd-host         
+-     rbd-host          (done)
 -     rbd-osd           
 -     rbd-size         
 -     rbd-all-size      
