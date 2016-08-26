@@ -162,6 +162,15 @@ def main():
         else:
             print "rbd-all-size      pool_name                     Print all RBD images size (Top first)"
     
+    if sys.argv[1] == 'osd-most-used':
+        if len(sys.argv) == 2:
+            try:
+                print find_most_used_osd()
+            except:
+                print "no data!"
+        else:
+            print "osd-most-used                                   Show the most used OSD (capacity)"
+
 
 
 
@@ -416,8 +425,13 @@ def  list_all_rbd_real_size(poolname):
      return all_rbd_size
 
 
-
-
+def find_most_used_osd():
+    osd=commands.getoutput('ceph pg dump osds --format json 2> /dev/null')
+    json_str = json.loads(osd)    
+    most_used_osd_item = max(json_str, key=lambda x:x['kb_used'])
+    osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %most_used_osd_item["osd"] )
+    json_str1 = json.loads(osd_localtion)
+    return  "OSD:osd.%s | Host: %s | Used: %s GB" %(most_used_osd_item["osd"],json_str1["crush_location"]["host"],most_used_osd_item["kb_used"]/1024/1024)
 
 
 #
