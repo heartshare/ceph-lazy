@@ -84,7 +84,7 @@ Ceph-lazy 当前被分成了五类操作 Host - PGs - RBD - OSD and Objects; 每
 Usage is pretty straightforward just ensure you have all dependencies installed, clone the git repo
 
 ```
-wget -o /sbin/ceph-lazy https://raw.githubusercontent.com/zphj1987/ceph-lazy/lazy-python/ceph-lazy.py
+wget -O /sbin/ceph-lazy https://raw.githubusercontent.com/zphj1987/ceph-lazy/lazy-python/ceph-lazy.py
 chmod 777 /sbin/ceph-lazy
 ```
 
