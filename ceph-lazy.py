@@ -4,11 +4,8 @@ import os
 import sys
 import commands
 import json
-#import optparse
-#import tempfile
 
-
-VERSION="1.1.2"
+VERSION="1.8.1"
 
 def main():
     if len(sys.argv) == 1:  
@@ -91,19 +88,19 @@ def main():
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-most-read-kb" )
         else:
-            print "pg-most-read-kb               列出读操作最多的PG (data written) "
+            print "pg-most-read-kb               列出读操作最多的PG (data read) "
     if sys.argv[1] == 'pg-less-read-kb':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-less-read-kb" )
         else:
-            print "pg-less-read-kb               列出读操作最少的PG (data written) "
+            print "pg-less-read-kb               列出读操作最少的PG (data read) "
 
     if sys.argv[1] == 'pg-empty':
         if len(sys.argv) == 2:
             for item in find_empty_pg():
                 print item
         else:
-            print "pg-empty                        列出空的PG (没有存储对象) "
+            print "pg-empty                      列出空的PG (没有存储对象) "
 
     if sys.argv[1] == 'rbd-prefix':
         if len(sys.argv) == 4:
@@ -160,7 +157,7 @@ def main():
             except:
                 print "no data!"
         else:
-            print "rbd-all-size      pool_name                     列出知道存储所有的RBD的Image的真实大小(Top first)"
+            print "rbd-all-size      pool_name                     列出指定存储所有的RBD的Image的真实大小(Top first)"
     
     if sys.argv[1] == 'osd-most-used':
         if len(sys.argv) == 2:
@@ -169,7 +166,7 @@ def main():
             except:
                 print "no data!"
         else:
-            print "osd-most-used                                   Show the most used OSD (capacity)"
+            print "osd-most-used                                   列出容量使用最多的OSD"
 
     if sys.argv[1] == 'osd-less-used':
         if len(sys.argv) == 2:
@@ -178,7 +175,7 @@ def main():
             except:
                 print "no data!"
         else:
-            print "osd-most-used                                   Show the most used OSD (capacity)"
+            print "osd-less-used                                   列出容量使用最少的OSD"
 
     if sys.argv[1] == 'osd-get-ppg':
         if len(sys.argv) == 3:
@@ -188,7 +185,7 @@ def main():
             except:
                 print "no data!"
         else:
-            print "osd-get-ppg       osd_id                        Show all primaries PGS hosted on a OSD"
+            print "osd-get-ppg       osd_id                        列出指定OSD上所有的primary PG"
 
     if sys.argv[1] == 'osd-get-pg':
         if len(sys.argv) == 3:
@@ -198,7 +195,7 @@ def main():
             except:
                 print "no data!"
         else:
-            print "osd-get-pg       osd_id                        Show all PGS hosted on a OSD"
+            print "osd-get-pg       osd_id                           列出指定OSD上的所有PG"
 
     if sys.argv[1] == 'object-get-host':
         if len(sys.argv) == 4:
@@ -207,10 +204,10 @@ def main():
             except:
                 print "no data!"
         else:
-            print "object-get-host   pool_name object_id           Find object storage hosts (first is primary)"
+            print "object-get-host   pool_name object_id              列出指定对象所在的主机（第一个是主）"
 
-
-
+    else:
+        help()
 
 
 #
@@ -353,7 +350,6 @@ def pg_stat_query(arg):
         host=json_str1["crush_location"]["host"]
         return  "PG:"+str(min_num_read_item["pgid"])+" | "+"OSD:osd."+str(min_num_read_item["acting_primary"])+" | "+"Host:"+str(host)
 
-
 def find_empty_pg():
     null_pg_list=[]
     null_pg = commands.getoutput('ceph pg dump pgs --format json 2>/dev/null' )
@@ -362,8 +358,6 @@ def find_empty_pg():
         if item['stat_sum']['num_objects'] == 0:
             null_pg_list.append(item['pgid'])
     return null_pg_list
-
-
 
 #
 #  Return RBD prefix from image name
@@ -562,39 +556,38 @@ COMMANDS
     host-get-nodes                                  列出所有的存储节点.
     host-osd-usage    hostname     [detail]         列出存储节点上的存储使用的情况(detail看详细信息)
     host-all-usage                 [detail]         列出指定存储节点上的存储使用的情况(detail看详细信息)
-    Placement groups
     ------------------
    | Placement groups |
     ------------------
-    pg-get-host       pgid                          Find PG storage hosts (first is primary)
-    pg-most-write                                   Find most written PG (nb operations)
-    pg-less-write                                   Find less written PG (nb operations)
-    pg-most-write-kb                                Find most written PG (data written)
-    pg-less-write-kb                                Find less written PG (data written)
-    pg-most-read                                    Find most read PG (nb operations)
-    pg-less-read                                    Find less read PG (nb operations)
-    pg-most-read-kb                                 Find most read PG (data read)
-    pg-less-read-kb                                 Find less read PG (data read)
-    pg-empty                                        Find empty PGs (no stored object)
+    pg-get-host       pgid                          列出PG所在的节点(first is primary) 
+    pg-most-write                                   列出写操作最多的PG ( operations number)
+    pg-less-write                                   列出写操作最少的PG ( operations number)
+    pg-most-write-kb                                列出写操作最多的PG (data written)
+    pg-less-write-kb                                列出写操作最少的PG (data written)
+    pg-most-read                                    列出读操作最多的PG (operations number)
+    pg-less-read                                    列出读操作最少的PG (operations number)
+    pg-most-read-kb                                 列出读操作最多的PG (data read)
+    pg-less-read-kb                                 列出读操作最少的PG (data read)
+    pg-empty                                        列出空的PG (没有存储对象)
     --------
    |   RBD  |
     --------
-    rbd-prefix        pool_name image_name          Return RBD image prefix
-    rbd-count         pool_name image_name          Count number of objects in a RBD image
-    rbd-host          pool_name image_name          Find RBD primary storage hosts
-    rbd-osd           pool_name image_name          Find RBD primary OSDs
-    rbd-size          pool_name image_name          Print RBD image real size
-    rbd-all-size      pool_name                     Print all RBD images size (Top first)
+    rbd-prefix        pool_name image_name          列出RBD的prefix
+    rbd-count         pool_name image_name          列出RBD的对象数目
+    rbd-host          pool_name image_name          列出RBD的Primary所在的存储主机
+    rbd-osd           pool_name image_name          列出RBD的Primary所在的OSD节点
+    rbd-size          pool_name image_name          列出RBD的Image的真实大小
+    rbd-all-size      pool_name                     列出指定存储所有的RBD的Image的真实大小(Top first)
     --------
    |   OSD  |
     --------
-    osd-most-used                                   Show the most used OSD (capacity)
-    osd-less-used                                   Show the less used OSD (capacity)
-    osd-get-ppg       osd_id                        Show all primaries PGS hosted on a OSD
-    osd-get-pg        osd_id                        Show all PGS hosted on a OSD
+    osd-most-used                                   列出容量使用最多的OSD
+    osd-less-used                                   列出容量使用最少的OSD
+    osd-get-ppg       osd_id                        列出指定OSD上所有的primary PG
+    osd-get-pg        osd_id                        列出指定OSD上的所有PG
     Objects
     --------
-    object-get-host   pool_name object_id           Find object storage hosts (first is primary)
+    object-get-host   pool_name object_id           列出指定对象所在的主机（第一个是主）
 """
 
 if __name__ == '__main__':
