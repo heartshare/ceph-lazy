@@ -18,13 +18,13 @@ def main():
                 print "osd.%s " %osd
         else:
             print "host-get-osd <hostname>                    列出节点上的所有的osd"
-    if sys.argv[1] == 'host-get-nodes':
+    elif sys.argv[1] == 'host-get-nodes':
         if len(sys.argv) == 2:
             for node in list_all_nodes():
                 print node
         else:
             print "list_all_nodes                             列出所有的存储主机节点"
-    if sys.argv[1] == 'host-osd-usage':
+    elif sys.argv[1] == 'host-osd-usage':
         if len(sys.argv) == 3:
             for item in show_host_osd_usage(sys.argv[2],False):
                 print item
@@ -33,7 +33,7 @@ def main():
                 print item
         else:
             print "host-osd-usage    hostname       [detail]               列出指定存储主机上的存储使用的情况(detail看详细信息)"
-    if sys.argv[1] == 'host-all-usage':
+    elif sys.argv[1] == 'host-all-usage':
         if len(sys.argv) == 2:
             list_all_nodes_osd_usage(False)
         elif len(sys.argv) == 3 and sys.argv[2] == "detail":
@@ -41,7 +41,7 @@ def main():
         else:
             print "host-all-usage                   [detail]               列出所有存储节点上的存储使用的情况(detail看详细信息)"
 
-    if sys.argv[1] == 'pg-get-host':
+    elif sys.argv[1] == 'pg-get-host':
         if len(sys.argv) == 3:
             try:
                 for item in  find_host_from_pg(sys.argv[2]):
@@ -51,58 +51,58 @@ def main():
         else:
             print "pg-get-host       pgid                                  列出PG所在的节点(first is primary)"
 
-    if sys.argv[1] == 'pg-most-write':
+    elif sys.argv[1] == 'pg-most-write':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-most-write" )           
         else:
             print "pg-most-write               列出写操作最多的PG ( operations number)"
 
-    if sys.argv[1] == 'pg-less-write':
+    elif sys.argv[1] == 'pg-less-write':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-less-write" )
         else:
             print "pg-less-write               列出写操作最少的PG ( operations number)"
-    if sys.argv[1] == 'pg-most-write-kb':
+    elif sys.argv[1] == 'pg-most-write-kb':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-most-write-kb" )
         else:
             print "pg-most-write-kb               列出写操作最多的PG (data written) "
-    if sys.argv[1] == 'pg-less-write-kb':
+    elif sys.argv[1] == 'pg-less-write-kb':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-less-write-kb" )
         else:
             print "pg-less-write-kb               列出写操作最少的PG (data written) "
-    if sys.argv[1] == 'pg-most-read':
+    elif sys.argv[1] == 'pg-most-read':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-most-read" )
         else:
             print "pg-most-read               列出读操作最多的PG (operations number) "
 
-    if sys.argv[1] == 'pg-less-read':
+    elif sys.argv[1] == 'pg-less-read':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-less-read" )
         else:
             print "pg-less-read               列出读操作最少的PG (operations number) "
 
-    if sys.argv[1] == 'pg-most-read-kb':
+    elif sys.argv[1] == 'pg-most-read-kb':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-most-read-kb" )
         else:
             print "pg-most-read-kb               列出读操作最多的PG (data read) "
-    if sys.argv[1] == 'pg-less-read-kb':
+    elif sys.argv[1] == 'pg-less-read-kb':
         if len(sys.argv) == 2:
             print pg_stat_query( "pg-less-read-kb" )
         else:
             print "pg-less-read-kb               列出读操作最少的PG (data read) "
 
-    if sys.argv[1] == 'pg-empty':
+    elif sys.argv[1] == 'pg-empty':
         if len(sys.argv) == 2:
             for item in find_empty_pg():
                 print item
         else:
             print "pg-empty                      列出空的PG (没有存储对象) "
 
-    if sys.argv[1] == 'rbd-prefix':
+    elif sys.argv[1] == 'rbd-prefix':
         if len(sys.argv) == 4:
             try:
                 print get_rbd_prefix(sys.argv[2],sys.argv[3])    
@@ -111,7 +111,7 @@ def main():
         else:
             print "rbd-prefix        pool_name image_name         列出RBD的prefix"
 
-    if sys.argv[1] == 'rbd-count':
+    elif sys.argv[1] == 'rbd-count':
         if len(sys.argv) == 4:
             try:
                 print count_rbd_object(sys.argv[2],sys.argv[3])
@@ -120,7 +120,7 @@ def main():
         else:
             print "rbd-count        pool_name image_name         列出RBD的对象数目"
 
-    if sys.argv[1] == 'rbd-host':
+    elif sys.argv[1] == 'rbd-host':
         if len(sys.argv) == 4:
             try:
                 for item in  find_prim_host_from_rbd(sys.argv[2],sys.argv[3]):
@@ -130,7 +130,7 @@ def main():
         else:
             print "rbd-host          pool_name image_name         列出RBD的Primary所在的存储主机"
 
-    if sys.argv[1] == 'rbd-osd':
+    elif sys.argv[1] == 'rbd-osd':
         if len(sys.argv) == 4:
             try:
                 for item in  find_prim_osd_from_rbd(sys.argv[2],sys.argv[3]):
@@ -140,7 +140,7 @@ def main():
         else:
             print "rbd-osd          pool_name image_name          列出RBD的Primary所在的OSD节点"
 
-    if sys.argv[1] == 'rbd-size':
+    elif sys.argv[1] == 'rbd-size':
         if len(sys.argv) == 4:
             try:
                 print "Pool: "+sys.argv[2]+" | "+"Image:"+ sys.argv[3]+" | "+ "Real_size:"+print_rbd_real_size(sys.argv[2],sys.argv[3])
@@ -149,7 +149,7 @@ def main():
         else:
             print "rbd-size          pool_name image_name         列出RBD的Image的真实大小"
 
-    if sys.argv[1] == 'rbd-all-size':
+    elif sys.argv[1] == 'rbd-all-size':
         if len(sys.argv) == 3:
             try:
                 for item in list_all_rbd_real_size(sys.argv[2]):
@@ -159,7 +159,7 @@ def main():
         else:
             print "rbd-all-size      pool_name                     列出指定存储所有的RBD的Image的真实大小(Top first)"
     
-    if sys.argv[1] == 'osd-most-used':
+    elif sys.argv[1] == 'osd-most-used':
         if len(sys.argv) == 2:
             try:
                 print find_most_used_osd()
@@ -168,7 +168,7 @@ def main():
         else:
             print "osd-most-used                                   列出容量使用最多的OSD"
 
-    if sys.argv[1] == 'osd-less-used':
+    elif sys.argv[1] == 'osd-less-used':
         if len(sys.argv) == 2:
             try:
                 print find_less_used_osd()
@@ -177,7 +177,7 @@ def main():
         else:
             print "osd-less-used                                   列出容量使用最少的OSD"
 
-    if sys.argv[1] == 'osd-get-ppg':
+    elif sys.argv[1] == 'osd-get-ppg':
         if len(sys.argv) == 3:
             try:
                 for item in find_prim_pg_from_osd(sys.argv[2]):
@@ -187,7 +187,7 @@ def main():
         else:
             print "osd-get-ppg       osd_id                        列出指定OSD上所有的primary PG"
 
-    if sys.argv[1] == 'osd-get-pg':
+    elif sys.argv[1] == 'osd-get-pg':
         if len(sys.argv) == 3:
             try:
                 for item in find_all_pg_from_osd(sys.argv[2]):
@@ -197,7 +197,7 @@ def main():
         else:
             print "osd-get-pg       osd_id                           列出指定OSD上的所有PG"
 
-    if sys.argv[1] == 'object-get-host':
+    elif sys.argv[1] == 'object-get-host':
         if len(sys.argv) == 4:
             try:
                 find_host_from_object(sys.argv[2],sys.argv[3])
@@ -545,7 +545,6 @@ def help():
 Ceph complex quering tool - Version $VERSION
 OPTIONS
 ========
-    -d          Activate debug mode
     -h          Print help
 COMMANDS
 =========
@@ -555,7 +554,7 @@ COMMANDS
     host-get-osd      hostname                      列出节点上的所有的OSD.
     host-get-nodes                                  列出所有的存储节点.
     host-osd-usage    hostname     [detail]         列出存储节点上的存储使用的情况(detail看详细信息)
-    host-all-usage                 [detail]         列出指定存储节点上的存储使用的情况(detail看详细信息)
+    host-all-usage                 [detail]         列出所有存储节点上的存储使用的情况(detail看详细信息)
     ------------------
    | Placement groups |
     ------------------
