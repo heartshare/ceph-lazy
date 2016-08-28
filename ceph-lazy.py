@@ -329,7 +329,7 @@ def pg_stat_query(arg):
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_read_item["acting_primary"]) )
         json_str1 = json.loads(osd_localtion)
         host=json_str1["crush_location"]["host"]
-        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+        return  "PG:"+str(max_num_read_item["pgid"])+" | "+"OSD:osd."+str(max_num_read_item["acting_primary"])+" | "+"Host:"+str(host)
     if arg == "pg-less-read":
         min_num_read_item = min(json_str, key=lambda x:x['stat_sum']["num_read"])
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(min_num_read_item["acting_primary"]) )
@@ -341,7 +341,7 @@ def pg_stat_query(arg):
         osd_localtion = commands.getoutput('ceph  osd find  %s  --format json 2>/dev/null' %str(max_num_read_item["acting_primary"]) )
         json_str1 = json.loads(osd_localtion)
         host=json_str1["crush_location"]["host"]
-        return  "PG:"+str(max_num_write_item["pgid"])+" | "+"OSD:osd."+str(max_num_write_item["acting_primary"])+" | "+"Host:"+str(host)
+        return  "PG:"+str(max_num_read_item["pgid"])+" | "+"OSD:osd."+str(max_num_read_item["acting_primary"])+" | "+"Host:"+str(host)
 
     if arg == "pg-less-read-kb":
         min_num_read_item = min(json_str, key=lambda x:x['stat_sum']["num_read_kb"])
